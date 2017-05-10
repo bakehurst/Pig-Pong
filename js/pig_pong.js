@@ -84,7 +84,6 @@ var pp = (function(){
                 } 
                 return whichMessage(msg[4].replace(SCORETAG,score),
                        msg[5].replace(SCORETAG,score),score );
-                //return msg[5].replace(SCORETAG,score);
             }           
             show(text(),score);
         };
@@ -327,6 +326,7 @@ var pp = (function(){
             }
         };
         function touchMove(e) {
+            e.preventDefault();
             if(e.targetTouches.length > 0){
                 mouseMove(e.targetTouches[0]);
             }            
@@ -378,11 +378,9 @@ var pp = (function(){
             return 1;            
         };
         function resize() {
-            paused = true;
             var rect = utils.getBounds(div);
             var parentRect = utils.getBounds(div.parentNode);
             moveTo(parentRect.height/2-rect.height/2);
-            paused = false;
         };
         function init() {
             if(div !== null) return;
@@ -432,21 +430,33 @@ var pp = (function(){
             },
             effects       = [
                 function() {
-                    game.sound("aahh").play();
+                    var sound = game.sound("aahh");
+                    if(sound) {
+                        sound.play();
+                    }
                     utils.cssEffect(this.effect,"growspin","aahh"); 
                 },
-                function() {
-                    game.sound("HeHe").play();     
+                function() { 
+                    var sound = game.sound("HeHe");
+                    if(sound) {
+                        sound.play();
+                    }                        
                     utils.cssEffect(this.effect,"pulse","HeHe",function(){
                         nextBall(2500);
                     });                    
                 },                  
-                function() {
-                    game.sound("Oink").play();
+                function() { 
+                    var sound = game.sound("Oink");
+                    if(sound) {
+                        sound.play();
+                    }                      
                     utils.cssEffect(this.effect,"growspin","Oink");
                 },
                 function() {
-                    game.sound("Boom").play();                    
+                    var sound = game.sound("Boom");
+                    if(sound) {
+                        sound.play();
+                    }                                       
                     utils.cssEffect(this.effect,"growspin","Boom");
                 }
              
@@ -598,11 +608,9 @@ var pp = (function(){
                 return rect;
             };
             function resize() {
-                paused = true;
                 var court = game.court.bounds();
                 params = bounds(true);
                 moveTo(court.centerX-params.width/2,court.centerY-params.height/2,0);
-                paused = false;
             };
             function init() {
                 params.div = document.querySelector("#ball");
@@ -760,10 +768,13 @@ var pp = (function(){
         };
         function orientation(orient) {
             try {
-                screen.orientation.lock(orient);
-            }catch(e){}
-       
+                screen.orientation.lock(orient).then(
+                    function(){},
+                    function(){}
+                ).catch(function(){});                                          
+           }catch(e){};      
         };
+        
         function fullScreen(enter) {
             var funcs = [
                 function() {
@@ -819,13 +830,21 @@ var pp = (function(){
             }
            
         };
+        function fullScreenChange(callback) {
+            document.onfullscreenchange = callback;
+            document.onwebkitfullscreenchange = callback;
+            document.onmozfullscreenchange = callback;              
+            document.onmsfullscreenchange = callback;              
+        };
+        
         function toggleFullScreen() {
           if (!document.fullscreenElement) {
               fullScreen(true);
           } else {
               fullScreen(false);
           }
-        };       
+        };
+
         function polyFills() {
             if(!String.prototype.padLeft) {
             String.prototype.padLeft = 
@@ -856,33 +875,33 @@ var pp = (function(){
             localStorage:   localStorage,
             orientation:    orientation,
             fullScreen:     fullScreen,
+            fullScreenChange: fullScreenChange,
             toggleFullScreen:toggleFullScreen,
             polyFills:      polyFills          
         };
         
     })();
     
-    var game = (function(){
-        var     paused          =   false,
-                started         =   false,
+    var game = (function(){    
+        var     started         =   false,
                 startButton     =   null,
                 pauseButton     =   null,
                 screenButton    =   null,
                 sounds          = {
                    "Oink" : {
-                       file:["soundFiles/Oink.mp3"],                        
+                       file:["soundFiles/Oink.mp3","soundFiles/Oink.ogg"],                        
                        audio:null
                    },
                    "Boom" : {
-                       file:["soundFiles/Clang.mp3"],
+                       file:["soundFiles/Clang.mp3","soundFiles/Clang.ogg"],
                        audio:null
                     },
                    "aahh" : {
-                       file:["soundFiles/Groan.mp3"],
+                       file:["soundFiles/Groan.mp3","soundFiles/Groan.ogg"],
                        audio:null
                    },
                    "HeHe" : {
-                       file:["soundFiles/Giggle.mp3"],
+                       file:["soundFiles/Giggle.mp3","soundFiles/Giggle.ogg"],
                        audio:null
                    }
                 },
@@ -896,22 +915,26 @@ var pp = (function(){
             var alt = pauseButton.textContent;
             pauseButton.textContent = pauseButton.getAttribute("data-alt");
             pauseButton.setAttribute("data-alt",alt);             
-            if(paused) {
+            if(pause()) {
                 pause(false);
             }
             else {
                 pause(true);              
             }
-        };             
-        function pause(p) {
-            if(p !== undefined) {
-                paused = p;
-            }
-            gameObjs.forEach(function(obj){
-                obj.pause(paused);
-            });            
-            return paused;            
         };
+        var pause = (function(){
+            var paused = false;
+            return function(p) {
+                if(p !== undefined) {
+                    paused = p;
+                    gameObjs.forEach(function(obj){
+                        obj.pause(paused);
+                    });                     
+                }                
+                return paused;
+            };
+        }());
+        
         function startClick() {
             var alt = startButton.textContent;
             startButton.textContent = startButton.getAttribute("data-alt");
@@ -956,6 +979,11 @@ var pp = (function(){
            screenButton = document.querySelector("#button03");           
            startButton.addEventListener("click",startClick);
            pauseButton.addEventListener("click",pauseClick);
+           utils.fullScreenChange(function(){
+                utils.orientation("landscape");
+                resize();
+           });
+           
            screenButton.addEventListener("click",utils.toggleFullScreen);          
         };
         function settings() {           
@@ -965,36 +993,59 @@ var pp = (function(){
            var pigs = params.querySelector("input[name=pigs]");
            defaultBalls = pigs.value;
            pigs.addEventListener("change", function(){
-                setPigsDisplay(this.value);
-                ball.numBalls(this.value);  
+                var max = parseInt(this.getAttribute("max"));
+                var min = parseInt(this.getAttribute("min")); 
+                if(this.value >= min && this.value <= max) {
+                    setPigsDisplay(this.value);
+                    ball.numBalls(this.value);
+                }
+                else {
+                    this.value = ball.numBalls();
+                }
            });
            var speed = params.querySelector("input[name=speed]");
            defaultSpeed = speed.value;
            speed.addEventListener("change",function(){
-                 ball.speed(this.value); 
+                var max = parseInt(this.getAttribute("max"));
+                var min = parseInt(this.getAttribute("min"));               
+                if(this.value >= min && this.value <= max) {
+                    ball.speed(this.value);
+                }               
+                else {
+                    this.value = ball.speed();                  
+                }
+               
            });
            var sound = params.querySelector("input[name=sound]");
            muteSounds = !sound.checked;
            sound.addEventListener("change",function(){
                   mute(!this.checked);
+                  if(this.checked) {
+                      soundsInit();
+                  }
            });
            return params;
         };
-        function soundsInit() {
-            for(var key in sounds) {
-                if(sounds.hasOwnProperty(key)){
-                    sounds[key]["audio"] = 
-                            utils.createsoundbite(sounds[key]["file"]);                  
+        var soundsInit = (function () {
+            var init = false;
+            return function() {
+                if(init === true) return;
+                for(var key in sounds) {
+                    if(sounds.hasOwnProperty(key)){
+                        sounds[key]["audio"] = 
+                                utils.createsoundbite(sounds[key]["file"]);                  
+                    }
                 }
-            }
-        };
+                
+                init = true; 
+            };
+        })();       
         function sound(name) {
             var audio = sounds[name].audio;
             if(audio) {
                 audio.muted = muteSounds;
                 return audio;
             }
-            console.error(name+" sound is NULL");
             return null;
         };
         function mute(m) {
@@ -1002,6 +1053,11 @@ var pp = (function(){
                 muteSounds = m;
             }
             return muteSounds;
+        };
+        function resize() {
+            court.resize();
+            racket.resize();
+            ball.resize();
         };
         var court = (function(){
             var SPIN        = 2;
@@ -1077,28 +1133,23 @@ var pp = (function(){
                 hit:hit
             };
         })();
+        
 
         function init(){
             utils.polyFills();
-            soundsInit();
             buttonInit();
-            utils.orientation("landscape");
             document.body.addEventListener('touchmove',function(e){
                 e.preventDefault();
             });
             gameObjs.forEach(function(obj){
                 obj.init();
             });
-            window.addEventListener("resize",function(){
-                court.resize();
-                racket.resize();
-                ball.resize();
-            });         
-            splash.startMessage(settings());
+            window.addEventListener("resize",resize,false);
+            splash.startMessage(settings());            
             ball.numBalls(defaultBalls);
             ball.speed(defaultSpeed);
             animate();
-            ball.doDemo();           
+            ball.doDemo();
         };
         
         return {
