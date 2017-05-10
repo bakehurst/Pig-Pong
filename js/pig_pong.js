@@ -430,33 +430,21 @@ var pp = (function(){
             },
             effects       = [
                 function() {
-                    var sound = game.sound("aahh");
-                    if(sound) {
-                        sound.play();
-                    }
+                    game.playSound("aahh");
                     utils.cssEffect(this.effect,"growspin","aahh"); 
                 },
                 function() { 
-                    var sound = game.sound("HeHe");
-                    if(sound) {
-                        sound.play();
-                    }                        
+                    game.playSound("HeHe");
                     utils.cssEffect(this.effect,"pulse","HeHe",function(){
                         nextBall(2500);
                     });                    
                 },                  
-                function() { 
-                    var sound = game.sound("Oink");
-                    if(sound) {
-                        sound.play();
-                    }                      
+                function() {
+                    game.playSound("Oink"); 
                     utils.cssEffect(this.effect,"growspin","Oink");
                 },
                 function() {
-                    var sound = game.sound("Boom");
-                    if(sound) {
-                        sound.play();
-                    }                                       
+                    game.playSound("Boom"); 
                     utils.cssEffect(this.effect,"growspin","Boom");
                 }
              
@@ -1035,8 +1023,7 @@ var pp = (function(){
                         sounds[key]["audio"] = 
                                 utils.createsoundbite(sounds[key]["file"]);                  
                     }
-                }
-                
+                }               
                 init = true; 
             };
         })();       
@@ -1047,6 +1034,13 @@ var pp = (function(){
                 return audio;
             }
             return null;
+        };
+        function playSound(name) {
+            if(muteSounds) return;
+            var s = sound(name);
+            if(s) {
+                s.play();
+            }
         };
         function mute(m) {
             if(m !== undefined){
@@ -1134,17 +1128,25 @@ var pp = (function(){
             };
         })();
         
+        function iosvhFix() {
+            window.addEventListener("orientationchange",function(){
+                if(navigator.userAgent.match(/(iPhone|iPod|iPad)/i)) {
+                    document.documentElement.innerHTML =
+                            document.documentElement.innerHTML;
+                }
+            }, false);
+        };
 
         function init(){
+            iosvhFix();
             utils.polyFills();
             buttonInit();
-            document.body.addEventListener('touchmove',function(e){
-                e.preventDefault();
-            });
             gameObjs.forEach(function(obj){
                 obj.init();
             });
             window.addEventListener("resize",resize,false);
+             
+
             splash.startMessage(settings());            
             ball.numBalls(defaultBalls);
             ball.speed(defaultSpeed);
@@ -1156,8 +1158,7 @@ var pp = (function(){
            init:init,
            court:court,
            setPigsDisplay:setPigsDisplay,
-           sound:sound,
-           mute:mute
+           playSound:playSound
         };
         
     })();
