@@ -1132,10 +1132,17 @@ var pp = (function(){
         })();
         
         function iosvhFix() {
+          
             window.addEventListener("orientationchange",function(){
                 if(navigator.userAgent.match(/(iPhone|iPod|iPad)/i)) {
+                    var container = document.querySelector("#container");
+                    utils.removeClass(container,"contnorm");
+                    container.style.width = (window.innerWidth - 5)+"px";
+                    container.style.height = (window.innerHeight - 7)+"px";
+                    /*
                     document.documentElement.innerHTML =
                             document.documentElement.innerHTML;
+                    */
                     court.resize();
                 }
             }, false);

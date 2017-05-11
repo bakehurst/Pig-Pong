@@ -8,11 +8,16 @@ body {
     overflow: hidden;
 }
 #container {
+     position: relative;   
+    border: 2px solid gray;  
     
-    position: relative;
+}
+.contnorm {
     width:calc(100vw - 5px);
-    height:calc(100vh - 7px); 
-    border: 2px solid gray;
+    height:calc(100vh - 7px);  
+}
+
+.conttest {
     
 }
 #tête {
