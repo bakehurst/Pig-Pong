@@ -1145,7 +1145,7 @@ var pp = (function(){
         };
 
         function init(){
-            //iosvhFix();
+            iosvhFix();
             utils.polyFills();
             buttonInit();
             gameObjs.forEach(function(obj){
