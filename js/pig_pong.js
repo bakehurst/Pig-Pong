@@ -436,7 +436,7 @@ var pp = (function(){
                 function() { 
                     game.playSound("HeHe");
                     utils.cssEffect(this.effect,"pulse","HeHe",function(){
-                        nextBall(2500);
+                          nextBall(2500);
                     });                    
                 },                  
                 function() {
@@ -450,6 +450,7 @@ var pp = (function(){
              
             ],
             paused          = false,
+            started         = false,
             ANGMIN          = 5,
             ANGMAX          = 45;
 
@@ -510,8 +511,8 @@ var pp = (function(){
                 paused = true;
                 params.missed = false;
                 var co = game.court.bounds();
-                var c = utils.getRandomInt(1,co.bottom-params.height-1);
-                moveTo(co.right-params.width-1,c,0);
+                var c = utils.getRandomInt(5,co.bottom-params.height-5);
+                moveTo(co.right-params.width-5,c,0);
                 params.a = utils.getRandomInt(ANGMIN,ANGMAX);
                 params.dx = -1;
                 params.dy = c < (co.bottom-params.height)/2 ? 1 : -1;
@@ -521,6 +522,7 @@ var pp = (function(){
                 changePig();
                 if(balls() > 0) {                  
                     window.setTimeout(function(){
+                        if(!started && !params.demo) return;                        
                         if(!params.demo) {
                             balls(balls()-1);
                         }
@@ -540,11 +542,13 @@ var pp = (function(){
             };
             function reset() {
                 paused = true;
+                started = false;
                 params.div.style.display = "none";
                 numBalls(numBalls());             
             };
             function start() { 
                 params.demo = false;
+                started = true;
                 balls(numBalls());
                 nextBall(1500);
             };
@@ -954,7 +958,7 @@ var pp = (function(){
                 score.pigsDisplay(parseInt(pigs));
             }
         };                      
-        function animate() {
+        function animate(timestamp) {
             window.requestAnimationFrame(animate);
             if(!ball.pause()) {
               ball.collisions();
@@ -1002,7 +1006,6 @@ var pp = (function(){
                 else {
                     this.value = ball.speed();                  
                 }
-               
            });
            var sound = params.querySelector("input[name=sound]");
            muteSounds = !sound.checked;
@@ -1133,6 +1136,7 @@ var pp = (function(){
                 if(navigator.userAgent.match(/(iPhone|iPod|iPad)/i)) {
                     document.documentElement.innerHTML =
                             document.documentElement.innerHTML;
+                    court.resize();
                 }
             }, false);
         };
@@ -1145,8 +1149,6 @@ var pp = (function(){
                 obj.init();
             });
             window.addEventListener("resize",resize,false);
-             
-
             splash.startMessage(settings());            
             ball.numBalls(defaultBalls);
             ball.speed(defaultSpeed);
