@@ -976,7 +976,6 @@ var pp = (function(){
             if(!ball.pause()) { 
               ball.move();
               ball.collisions();
-
             }           
         };
         function buttonInit() {
@@ -1066,6 +1065,7 @@ var pp = (function(){
             return muteSounds;
         };
         function resize() {
+            containerResize();
             court.resize();
             racket.resize();
             ball.resize();
@@ -1144,8 +1144,8 @@ var pp = (function(){
                 hit:hit
             };
         })();
-
-        function init(){
+      
+        function init(){          
             utils.polyFills();
             buttonInit();
             gameObjs.forEach(function(obj){
@@ -1155,6 +1155,7 @@ var pp = (function(){
             splash.startMessage(settings());            
             ball.numBalls(defaultBalls);
             ball.speed(defaultSpeed);
+
             animate();
             ball.doDemo();
         };
