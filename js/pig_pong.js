@@ -466,7 +466,6 @@ var pp = (function(){
                params.pig.style.transform = "rotate("+r+"deg)";               
             };            
             function collisions() {
-
                 params = bounds();
                 if(params.missed) {
                     return params;
@@ -475,12 +474,12 @@ var pp = (function(){
                 params.dx = params.dx * hit.x;
                 params.dy = params.dy * hit.y;
                 params.dr = params.dr + hit.r;
-                if(params.dr !== 0) {
-                    setPath();
-                }
                 if(hit.side !== -1) {
                     effects[hit.side].call(params);                     
                     params.missed = (hit.side === 1);
+                    if(params.dr !== 0) {
+                        setPath();
+                    }                    
                 }               
                 return params;
             };           
@@ -497,6 +496,7 @@ var pp = (function(){
             function setPath() {
                 var signX = Math.abs(params.dx)/params.dx;
                 var signY = Math.abs(params.dy)/params.dy;
+
                 if(params.dr !== 0) {
                     params.a = params.a + params.dr;
                     params.a = params.a >= ANGMIN ? params.a : ANGMIN;
@@ -555,8 +555,8 @@ var pp = (function(){
             var speed = (function() {
                 var spd = 7;              
                 return function(s) {
-                    if(s !== undefined) {                        
-                        spd = s;                       
+                    if(s !== undefined) {                       
+                        spd = s * (60/game.fps());                     
                         setPath();
                     }
                     return spd;
@@ -958,11 +958,25 @@ var pp = (function(){
                 score.pigsDisplay(parseInt(pigs));
             }
         };                      
+        var fps = (function() {
+            var last = 0;
+            var frpersec = 60;
+            return function(latest) {
+                if(latest !== undefined) {
+                    frpersec = 1000 / (latest - last);
+                    last = latest;
+                }
+                return Math.round(frpersec);
+            };
+        })();
         function animate(timestamp) {
+            fps(timestamp);
             window.requestAnimationFrame(animate);
-            if(!ball.pause()) {
-              ball.collisions();
+        
+            if(!ball.pause()) { 
               ball.move();
+              ball.collisions();
+
             }           
         };
         function buttonInit() {
@@ -1105,6 +1119,10 @@ var pp = (function(){
                     }
                     dir.side = 1;
                     return dir;
+                } 
+                if(pig.x <= rect.x) {
+                    dir.x = -1;
+                    dir.side = 3;
                 }                 
                 if(pig.y <= rect.y) {
                     dir.y = -1;
@@ -1113,11 +1131,7 @@ var pp = (function(){
                 if(pig.bottom >= rect.bottom){
                     dir.y = -1;
                     dir.side = 2;
-                }
-                if(pig.x <= rect.x) {
-                    dir.x = -1;
-                    dir.side = 3;
-                }              
+                }             
                 return dir;   
             };             
             function resize() {
@@ -1130,22 +1144,8 @@ var pp = (function(){
                 hit:hit
             };
         })();
-        
-        function iosvhFix() {
-          
-            window.addEventListener("orientationchange",function(){
-                if(navigator.userAgent.match(/(iPhone|iPod|iPad)/i)) {
-                    
-                    document.documentElement.innerHTML =
-                            document.documentElement.innerHTML;
-                    
-                    court.resize();
-                }
-            }, false);
-        };
 
         function init(){
-            iosvhFix();
             utils.polyFills();
             buttonInit();
             gameObjs.forEach(function(obj){
@@ -1162,6 +1162,7 @@ var pp = (function(){
         return {
            init:init,
            court:court,
+           fps:fps,
            setPigsDisplay:setPigsDisplay,
            playSound:playSound
         };
