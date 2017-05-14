@@ -8,18 +8,14 @@ body {
     overflow: hidden;
 }
 #container {
-     position: relative;   
-    border: 2px solid gray;  
-    
+    position: relative;   
+    border: 2px solid gray;    
 }
 .contnorm {
     width:calc(100vw - 5px);
     height:calc(100vh - 7px);  
 }
 
-.conttest {
-    
-}
 #tête {
     position: relative;
     height:12vh;
@@ -28,8 +24,8 @@ body {
     border: 0.7vh #66ff66 ridge; 
     text-align: center;
     background-image: url("../images/pig6.png");
-    background-repeat: no-repeat;
-    background-size: contain;
+    background-repeat: no-repeat;   
+    background-size: contain;  
     font-size: 9vh;
     font-family: vladimir script;
     color: gold;        
@@ -49,20 +45,16 @@ body {
     text-align: center;
     font-family: IMPACT;
 }
-.shuttleImage {
+.shuttleImage { 
     animation: suttleImageAnim 10s infinite;
 }
 @keyframes suttleImageAnim {
-    0% {
-      background-position-x: left;       
+    0% , 100% {
+      background-position-x: 0%;       
     }
     50% {
-       background-position-x: right;
+       background-position-x: 100%;
     }
-   
-    100% {
-      background-position-x: left;      
-    }   
 }
 #score{
     position: absolute;
