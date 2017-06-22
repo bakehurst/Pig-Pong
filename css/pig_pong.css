@@ -44,6 +44,10 @@ body {
     background-color: inherit;
     text-align: center;
     font-family: IMPACT;
+   user-select:none;
+   -moz-user-select:none;
+   -webkit-user-select:none;
+   -ms-user-select:none;     
 }
 .shuttleImage { 
     animation: suttleImageAnim 10s infinite;
@@ -61,6 +65,10 @@ body {
     left:0;
     width:14vh;
     color: silver;
+   user-select:none;
+   -moz-user-select:none;
+   -webkit-user-select:none;
+   -ms-user-select:none;     
 }
 #scoreEffect {
    position: absolute;
@@ -76,6 +84,10 @@ body {
    transform-origin: 0 0;
    text-align: right;
    font-family: IMPACT;
+   user-select:none;
+   -moz-user-select:none;
+   -webkit-user-select:none;
+   -ms-user-select:none;    
 }
 .addScore {    
     color: darkmagenta;
@@ -126,6 +138,10 @@ body {
 }
 #button_bar {
    float:right;
+   user-select:none;
+   -moz-user-select:none;
+   -webkit-user-select:none;
+   -ms-user-select:none;    
 }
 .but {
     display: inline-block;
@@ -137,6 +153,10 @@ body {
     font-size:2.3vh;
     text-align: center;
     color:white;
+   user-select:none;
+   -moz-user-select:none;
+   -webkit-user-select:none;
+   -ms-user-select:none;     
 }
 #button01 {
     background-color:darkred;
@@ -203,6 +223,10 @@ body {
     border: 1vh solid rgba(0,99,100,0.2);
     background-color: rgba(0,99,100,0.2);
     color:firebrick;
+    user-select:none;
+   -moz-user-select:none;
+   -webkit-user-select:none;
+   -ms-user-select:none;    
 }
 #params {
     font-size: 0px;
@@ -263,6 +287,10 @@ body {
    border-radius: 40%;
    color: darkred;
    visibility: hidden;
+   user-select:none;
+   -moz-user-select:none;
+   -webkit-user-select:none;
+   -ms-user-select:none;    
 }
 .growspin {
    visibility: visible;
